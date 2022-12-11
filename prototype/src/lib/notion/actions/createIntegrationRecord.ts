@@ -1,4 +1,5 @@
 import type { RecordInput } from "@app/integrations/interfaces";
+import type { Client } from "@notionhq/client";
 import type {
   CreatePageParameters,
   PageObjectResponse,
@@ -6,6 +7,7 @@ import type {
 } from "@notionhq/client/build/src/api-endpoints";
 import { client } from "../client";
 import type { IntegrationsDatabaseColumns } from "../constants";
+import { findIntegrationRecord } from "./findIntegrationRecord";
 
 type ValueOf<T> = T[keyof T];
 type PropertyValue = ValueOf<CreatePageParameters["properties"]>;
@@ -46,6 +48,33 @@ const selectProperty = ({ name }: SelectParameters) => ({
   },
 });
 
+const findOrCreateIntegrationRecord = async ({
+  notion,
+  input: { name, url, type },
+}: {
+  notion: Client;
+  input: RecordInput;
+}) => {
+  const record = await findIntegrationRecord({ url });
+  if (record) return record;
+
+  const properties: Record<IntegrationsDatabaseColumns, PropertyValue> = {
+    Name: titleProperty({ content: name, url }),
+    Integration: selectProperty({ name: type }),
+    Url: {
+      url,
+    },
+  };
+
+  return await notion.pages.create({
+    parent: {
+      database_id: process.env.NOTION_INTEGRATIONS_DATABASE_ID,
+    },
+    // @ts-expect-error notion.jsの型が辛すぎる
+    properties,
+  });
+};
+
 type Args = {
   dailyLogPage: PageObjectResponse | PartialPageObjectResponse;
   input: RecordInput;
@@ -68,20 +97,9 @@ export const createIntegrationRecord = async ({
 
   const notion = client();
 
-  const properties: Record<IntegrationsDatabaseColumns, PropertyValue> = {
-    Name: titleProperty({ content: input.name, url: input.url }),
-    Integration: selectProperty({ name: type }),
-    Url: {
-      url: input.url,
-    },
-  };
-
-  const integrationPage = await notion.pages.create({
-    parent: {
-      database_id: process.env.NOTION_INTEGRATIONS_DATABASE_ID,
-    },
-    // @ts-expect-error notion.jsの型が辛すぎる
-    properties,
+  const integrationPage = await findOrCreateIntegrationRecord({
+    notion,
+    input,
   });
 
   await notion.pages.update({
