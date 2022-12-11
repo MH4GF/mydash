@@ -1,4 +1,4 @@
-import { formatDate } from "@app/lib/dateFns";
+import { formatISO, startOfDay, endOfDay } from "@app/lib/dateFns";
 import { client } from "../client";
 
 export const findDailyLog = async () => {
@@ -9,9 +9,16 @@ export const findDailyLog = async () => {
       and: [
         {
           property: "Date",
-          type: "date",
-          date: {
-            equals: formatDate(new Date()),
+          type: "created_time",
+          created_time: {
+            on_or_after: formatISO(startOfDay(new Date())),
+          },
+        },
+        {
+          property: "Date",
+          type: "created_time",
+          created_time: {
+            on_or_before: formatISO(endOfDay(new Date())),
           },
         },
       ],
