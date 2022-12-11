@@ -70,6 +70,9 @@ export const createIntegrationRecord = async ({
     properties: {
       Name: titleProperty({ content: input.name, url: input.url }),
       Integration: selectProperty({ name: type }),
+      Url: {
+        url: input.url,
+      },
     },
   });
 
