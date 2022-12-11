@@ -3,7 +3,7 @@ import { collectIssues } from "./issues";
 
 export const githubIntegration = (): Integration => {
   const collect = async () => {
-    const issues = await collectIssues({ type: "GitHub" });
+    const issues = await collectIssues();
     return [...issues];
   };
 
