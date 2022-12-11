@@ -1,0 +1,17 @@
+{
+  "name": "prototype",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx src/index.ts"
+  },
+  "devDependencies": {
+    "@tsconfig/strictest": "^1.0.2",
+    "tsx": "^3.12.1"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.2",
+    "date-fns": "^2.29.3",
+    "dotenv": "^16.0.3"
+  }
+}
