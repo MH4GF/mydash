@@ -1,12 +1,9 @@
 import type { RecordInput } from "@app/integrations/interfaces";
 import type { Client } from "@notionhq/client";
-import type {
-  CreatePageParameters,
-  PageObjectResponse,
-  PartialPageObjectResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { client } from "../client";
 import type { IntegrationsDatabaseColumns } from "../constants";
+import type { PageObject } from "../type";
 import { findIntegrationRecord } from "./findIntegrationRecord";
 
 type ValueOf<T> = T[keyof T];
@@ -76,7 +73,7 @@ const findOrCreateIntegrationRecord = async ({
 };
 
 type Args = {
-  dailyLogPage: PageObjectResponse | PartialPageObjectResponse;
+  dailyLogPage: PageObject;
   input: RecordInput;
 };
 
