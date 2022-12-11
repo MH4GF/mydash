@@ -1,9 +1,14 @@
 import type { RecordInput } from "@app/integrations/interfaces";
 import type {
+  CreatePageParameters,
   PageObjectResponse,
   PartialPageObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { client } from "../client";
+import type { IntegrationsDatabaseColumns } from "../constants";
+
+type ValueOf<T> = T[keyof T];
+type PropertyValue = ValueOf<CreatePageParameters["properties"]>;
 
 type TitleParameters = {
   content: string;
@@ -56,24 +61,27 @@ export const createIntegrationRecord = async ({
     throw new Error("Invalid page");
   }
 
-  const properties = dailyLogPage.properties[type];
-  if (properties?.type !== "relation") {
-    throw new Error(`Invalid type: ${properties?.type || ""}`);
+  const dailyLogPageProperties = dailyLogPage.properties[type];
+  if (dailyLogPageProperties?.type !== "relation") {
+    throw new Error(`Invalid type: ${dailyLogPageProperties?.type || ""}`);
   }
 
   const notion = client();
+
+  const properties: Record<IntegrationsDatabaseColumns, PropertyValue> = {
+    Name: titleProperty({ content: input.name, url: input.url }),
+    Integration: selectProperty({ name: type }),
+    Url: {
+      url: input.url,
+    },
+  };
 
   const integrationPage = await notion.pages.create({
     parent: {
       database_id: process.env.NOTION_INTEGRATIONS_DATABASE_ID,
     },
-    properties: {
-      Name: titleProperty({ content: input.name, url: input.url }),
-      Integration: selectProperty({ name: type }),
-      Url: {
-        url: input.url,
-      },
-    },
+    // @ts-expect-error notion.jsの型が辛すぎる
+    properties,
   });
 
   await notion.pages.update({
@@ -81,7 +89,7 @@ export const createIntegrationRecord = async ({
     properties: {
       [type]: {
         relation: [
-          ...properties.relation,
+          ...dailyLogPageProperties.relation,
           {
             id: integrationPage.id,
           },
