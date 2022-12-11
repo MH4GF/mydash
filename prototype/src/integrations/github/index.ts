@@ -1,10 +1,12 @@
 import type { Integration } from "../interfaces";
 import { collectIssues } from "./issues";
+import { collectPullRequests } from "./pullRequests";
 
 export const githubIntegration = (): Integration => {
   const collect = async () => {
-    const issues = await collectIssues();
-    return [...issues];
+    return Promise.all([collectIssues(), collectPullRequests()]).then(
+      (inputs) => inputs.flat()
+    );
   };
 
   return { collect };
