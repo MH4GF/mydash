@@ -1,3 +1,4 @@
+import type { RecordInput } from "@app/integrations/interfaces";
 import type {
   PageObjectResponse,
   PartialPageObjectResponse,
@@ -29,6 +30,7 @@ const titleProperty = ({
   ],
   type: "title",
 });
+
 type SelectParameters = {
   name: string;
 };
@@ -39,27 +41,22 @@ const selectProperty = ({ name }: SelectParameters) => ({
   },
 });
 
-type IntegrationParameters = {
-  name: TitleParameters;
-  integration: SelectParameters;
-};
-
 type Args = {
   dailyLogPage: PageObjectResponse | PartialPageObjectResponse;
-  params: IntegrationParameters;
+  input: RecordInput;
 };
 
 export const createIntegrationRecord = async ({
   dailyLogPage,
-  params,
+  input,
 }: Args) => {
-  const { name, integration } = params;
+  const { type } = input;
 
   if (!("properties" in dailyLogPage)) {
     throw new Error("Invalid page");
   }
 
-  const properties = dailyLogPage.properties[integration.name];
+  const properties = dailyLogPage.properties[type];
   if (properties?.type !== "relation") {
     throw new Error(`Invalid type: ${properties?.type || ""}`);
   }
@@ -71,15 +68,15 @@ export const createIntegrationRecord = async ({
       database_id: process.env.NOTION_INTEGRATIONS_DATABASE_ID,
     },
     properties: {
-      Name: titleProperty(name),
-      Integration: selectProperty(integration),
+      Name: titleProperty({ content: input.name, url: input.url }),
+      Integration: selectProperty({ name: type }),
     },
   });
 
   await notion.pages.update({
     page_id: dailyLogPage.id,
     properties: {
-      [integration.name]: {
+      [type]: {
         relation: [
           ...properties.relation,
           {
