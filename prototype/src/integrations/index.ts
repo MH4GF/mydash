@@ -1,7 +1,8 @@
 import { githubIntegration } from "./github";
 import type { Integration, RecordInput } from "./interfaces";
+import { twitterIntegration } from "./twitter";
 
-const integrations: Integration[] = [githubIntegration()];
+const integrations: Integration[] = [githubIntegration(), twitterIntegration()];
 
 export const collectIntegrationRecordInputs = async (): Promise<
   RecordInput[]
