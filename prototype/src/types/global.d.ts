@@ -4,5 +4,6 @@ declare namespace NodeJS {
     readonly NOTION_DAILY_LOG_DATABASE_ID: string;
     readonly NOTION_INTEGRATIONS_DATABASE_ID: string;
     readonly GITHUB_TOKEN: string;
+    readonly TWITTER_BEARER_TOKEN: string;
   }
 }
