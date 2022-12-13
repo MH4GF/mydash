@@ -1,20 +1,13 @@
-import type { Client } from "@notionhq/client";
+import type { IntegrationType } from "@app/integrations/interfaces";
 import { integrationsDatabaseColumns } from "../constants";
-import { getRelationOfIntegrationRecordsProperties } from "../logic/getRelationOfIntegrationRecordsProperties";
 import type { PageObject } from "../type";
 
-type Args = {
-  client: Client;
-  dailyLogPage: PageObject;
-  integrationRecordPages: PageObject[];
-};
+export type Records = Record<IntegrationType, string>[];
 
-export const updateRelationOfIntegrationRecords = async ({
-  client,
-  dailyLogPage,
-  integrationRecordPages,
-}: Args) => {
-  const records = integrationRecordPages.map((page) => {
+export const mapTypeAndIdFromIntegrationRecords = (
+  pages: PageObject[]
+): Records => {
+  return pages.map((page) => {
     if (!("properties" in page))
       throw new Error("Invalid page: properties is not found");
     const column =
@@ -29,12 +22,5 @@ export const updateRelationOfIntegrationRecords = async ({
     return {
       [type]: page.id,
     };
-  });
-
-  const properties = getRelationOfIntegrationRecordsProperties(records);
-
-  await client.pages.update({
-    page_id: dailyLogPage.id,
-    properties,
   });
 };
