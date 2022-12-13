@@ -1,17 +1,26 @@
-import { formatDate } from "@app/lib/dateFns";
-import { client } from "../client";
+import { formatISO, startOfDay, endOfDay } from "@app/lib/dateFns";
+import type { Client } from "@notionhq/client";
 
-export const findDailyLog = async () => {
-  const notion = client();
-  const { results } = await notion.databases.query({
+type Args = {
+  client: Client;
+};
+export const findDailyLog = async ({ client }: Args) => {
+  const { results } = await client.databases.query({
     database_id: process.env.NOTION_DAILY_LOG_DATABASE_ID,
     filter: {
       and: [
         {
           property: "Date",
-          type: "date",
-          date: {
-            equals: formatDate(new Date()),
+          type: "created_time",
+          created_time: {
+            on_or_after: formatISO(startOfDay(new Date())),
+          },
+        },
+        {
+          property: "Date",
+          type: "created_time",
+          created_time: {
+            on_or_before: formatISO(endOfDay(new Date())),
           },
         },
       ],
