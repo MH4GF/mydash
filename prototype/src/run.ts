@@ -1,10 +1,13 @@
 import { collectIntegrationRecordInputs } from "./integrations";
-import { createIntegrationRecord, findDailyLog } from "./lib/notion";
+import {
+  client as notionClient,
+  findDailyLog,
+  storeIntegrationRecords,
+} from "./lib/notion";
 
 export const run = async () => {
-  const dailyLogPage = await findDailyLog();
+  const client = notionClient();
+  const dailyLogPage = await findDailyLog({ client });
   const inputs = await collectIntegrationRecordInputs();
-  await Promise.all(
-    inputs.map((input) => createIntegrationRecord({ dailyLogPage, input }))
-  );
+  await storeIntegrationRecords({ dailyLogPage, inputs, client });
 };

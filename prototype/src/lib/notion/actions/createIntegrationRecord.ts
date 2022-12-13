@@ -1,7 +1,6 @@
 import type { RecordInput } from "@app/integrations/interfaces";
 import type { Client } from "@notionhq/client";
 import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
-import { client } from "../client";
 import type { IntegrationsDatabaseColumns } from "../constants";
 import type { PageObject } from "../type";
 import { findIntegrationRecord } from "./findIntegrationRecord";
@@ -46,10 +45,10 @@ const selectProperty = ({ name }: SelectParameters) => ({
 });
 
 const findOrCreateIntegrationRecord = async ({
-  notion,
+  client,
   input: { name, url, type },
 }: {
-  notion: Client;
+  client: Client;
   input: RecordInput;
 }) => {
   const record = await findIntegrationRecord({ url });
@@ -63,7 +62,7 @@ const findOrCreateIntegrationRecord = async ({
     },
   };
 
-  return await notion.pages.create({
+  return await client.pages.create({
     parent: {
       database_id: process.env.NOTION_INTEGRATIONS_DATABASE_ID,
     },
@@ -73,11 +72,13 @@ const findOrCreateIntegrationRecord = async ({
 };
 
 type Args = {
+  client: Client;
   dailyLogPage: PageObject;
   input: RecordInput;
 };
 
 export const createIntegrationRecord = async ({
+  client,
   dailyLogPage,
   input,
 }: Args) => {
@@ -92,24 +93,8 @@ export const createIntegrationRecord = async ({
     throw new Error(`Invalid type: ${dailyLogPageProperties?.type || ""}`);
   }
 
-  const notion = client();
-
-  const integrationPage = await findOrCreateIntegrationRecord({
-    notion,
+  return await findOrCreateIntegrationRecord({
+    client,
     input,
-  });
-
-  await notion.pages.update({
-    page_id: dailyLogPage.id,
-    properties: {
-      [type]: {
-        relation: [
-          ...dailyLogPageProperties.relation,
-          {
-            id: integrationPage.id,
-          },
-        ],
-      },
-    },
   });
 };
