@@ -1,2 +1,2 @@
 export { findDailyLog } from "./findDailyLog";
-export { storeIntegrationRecords } from "./storeIntegrationRecords";
+export { updateDailyLog } from "./updateDailyLog";

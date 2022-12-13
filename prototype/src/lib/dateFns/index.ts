@@ -1,5 +1,3 @@
-import format from "date-fns/format";
-
 export {
   startOfDay,
   endOfDay,
@@ -7,8 +5,5 @@ export {
   parseISO,
   isEqual,
   subSeconds,
+  format,
 } from "date-fns";
-
-export const formatDate = (date: Date) => {
-  return format(date, "yyyy-MM-dd");
-};
