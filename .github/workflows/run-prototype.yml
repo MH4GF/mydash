@@ -5,6 +5,9 @@ on:
     - cron: "50 14 ? * *" # JSTの23:50
   workflow_dispatch:
 
+env:
+  TZ: "Asia/Tokyo"
+
 jobs:
   run:
     timeout-minutes: 10
